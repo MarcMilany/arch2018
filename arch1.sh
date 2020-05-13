@@ -193,3 +193,4 @@ genfstab -pU /mnt >> /mnt/etc/fstab
 echo 'Меняем корень и переходим в нашу недавно скачанную систему'
 # Change the root and go to our recently downloaded system
 arch-chroot /mnt sh -c "$(curl -fsSL git.io/arch2.sh)"
+
