@@ -1,7 +1,34 @@
 #!/bin/bash
-#wget git.io/archuefi3.sh && sh archuefi3.sh
-#!/bin/bash
 # ============================================================================
+### old_vars.log
+#set > old_vars.log
+
+#APPNAME="arch_fast_install"
+#VERSION="v1.6 LegasyBIOS"
+#BRANCH="master"
+#AUTHOR="ordanax"
+#LICENSE="GNU General Public License 3.0"
+
+# ============================================================================
+### Warning (Предупреждение)
+_warning_banner() {
+    echo -e "${YELLOW}
+   ====================== ♥ Предупреждение ======================
+${NC}
+Цель сценария (скрипта) - это установка первоначально необходимого софта (пакетов) и запуск необходимых служб. 
+Смысл в том, что все изменения вы делаете предварительно в самом скрипте и получаете возможность быстрой установки утилит (пакетов), которые Вы решили установить (при условии, что Вы его изменили под себя, в противном случае скрипт установит софт (пакеты) прописанный изначально.
+В процессе работы сценария (скрипта) Вам будут задаваться вопросы на установку той, или иной утилиты (пакета) - будьте внимательными! Не переживайте в скрипте только две утилиты (пакета) устанавливаются из 'AUR'. Это 'Pacman gui' или 'Octopi', в зависимости от вашего выбора. Сам же 'AUR'-'yay' с помощью скрипта созданного (autor): Alex Creio https://cvc.hashbase.io/ - скачивается с сайта 'Arch Linux' (https://aur.archlinux.org/packages/yay-git/), собирается и устанавливается. Остальной софт (пакеты) скачивается и устанавливается из 'Официальных репозиториев Arch Linux'. Если Вы сомневаетесь в своих действиях, скриптом можно пользоваться как шпаргалкой, открыв его в текстовом редакторе, копируя команды по установке необходимых пакетов, и запуска необходимых служб. В любой ситуации выбор всегда за вами. Вы либо гуляете под дождем, либо просто под ним мокнете.${RED}
+
+  ***************************** ВНИМАНИЕ! ***************************** 
+${NC}
+Автор не несёт ответственности за любое нанесение вреда при использовании скрипта. 
+Вы используйте его на свой страх и риск, или изменяйте под свои личные нужды. 
+В данный момент сценарий (скрипта) находится в процессе доработки по прописанию устанавливаемого софта (пакетов), и небольшой корректировке (Воен. Внесение поправок в наводку орудий по результатам наблюдений с наблюдательных пунктов)."
+
+}
+
+# ============================================================================
+
 ### Help and usage (--help or -h) (Справка)
 _help() {
     echo -e "${BLUE}
@@ -68,8 +95,71 @@ _wget() {
     wget "${1}" --quiet --show-progress
 }
 
+### Execute action in chrooted environment (Выполнение действия в хромированной среде)
+_chroot() {
+    arch-chroot /mnt <<EOF "${1}"
+EOF
+}
+
+### Check command status and exit on error (Проверьте состояние команды и завершите работу с ошибкой)
+_check() {
+    "${@}"
+    local STATUS=$?
+    if [[ ${STATUS} -ne 0 ]]; then _error "${@}"; fi
+    return "${STATUS}"
+}
+
+### Display error, cleanup and kill (Ошибка отображения, очистка и убийство)
+_error() {
+    echo -e "\n${RED}Error: ${YELLOW}${*}${NC}"
+    _note "${MSG_ERROR}"
+    sleep 1; _cleanup; _exit_msg; kill -9 $$
+}
+
+### Cleanup on keyboard interrupt (Очистка при прерывании работы клавиатуры)
+#trap '_error ${MSG_KEYBOARD}' 1 2 3 6
+
+### Delete sources and umount partitions (Удаление источников и размонтирование разделов)
+_cleanup() {
+    _info "${MSG_CLEANUP}"
+    SRC=(base bootloader desktop display firmware gpu_driver mirrorlist \
+mounting partitioning user desktop_apps display_apps gpu_apps system_apps \
+00-keyboard.conf language loader.conf timezone xinitrc xprofile \
+background.png Grub2-themes archboot* *.log english french german)
+
+    # Sources (rm) (Источники (rm))
+    for SOURCE in "${SRC[@]}"; do
+        if [[ -f "${SOURCE}" ]]; then rm -rfv "${SOURCE}"; fi
+    done
+
+    # Swap (swapoff) Своп (swapoff)
+    CHECK_SWAP=$( swapon -s ); if [[ ${CHECK_SWAP} ]]; then swapoff -av; fi
+
+    # Partitions (umount) Разделы (umount)
+    if mount | grep /mnt; then umount -Rfv /mnt; fi
+}
+
+### Reboot with 10s timeout Перезагрузка с таймаутом 10 секунд
+_reboot() {
+    for (( SECOND=10; SECOND>=1; SECOND-- )); do
+        echo -ne "\r\033[K${GREEN}${MSG_REBOOT} ${SECOND}s...${NC}"
+        sleep 1
+    done
+    reboot; exit 0
+}
+
+### Say goodbye (Распрощаться)
+_exit_msg() {
+    echo -e "\n${GREEN}<<< ${BLUE}${APPNAME} ${VERSION} ${BOLD}by \
+${AUTHOR} ${RED}under ${LICENSE} ${GREEN}>>>${NC}"""
+}
+
 # ============================================================================
 
+### Display banner (Дисплей баннер)
+_warning_banner
+
+sleep 4
 echo 'Для проверки интернета можно пропинговать какой-либо сервис'
 # To check the Internet, you can ping a service
 ping -c2 archlinux.org
@@ -82,7 +172,7 @@ mkdir ~/downloads
 cd ~/downloads
 
 echo -e "${BLUE}
-'Установка AUR (yay)'
+ 'Установка AUR (yay)'
 ${NC}"
 sudo pacman -Syu
 wget git.io/yay-install.sh && sh yay-install.sh --noconfirm
@@ -195,12 +285,12 @@ fi
 echo 'Установить рекомендованные программы?'
 # Install the recommended programs
 echo -e "${BLUE}
-'Список программ рекомендованных к установке:
-bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins lib32-simplescreenrecorder simplescreenrecorder redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm'
+'Список программ рекомендованных к установке:${GREEN}
+bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm'
 ${NC}"
 read -p "1 - Да, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
-sudo pacman -S bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins lib32-simplescreenrecorder simplescreenrecorder redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm --noconfirm 
+sudo pacman -S bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm --noconfirm 
 elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
@@ -208,6 +298,15 @@ fi
 echo 'Утилиты для форматирования флэш-накопителя с файловой системой exFAT в Linux'
 # Utilities for formatting a flash drive with the exFAT file system in Linux
 sudo pacman -S exfat-utils fuse-exfat --noconfirm 
+
+echo 'Добавим новый репозиторий [archlinuxfr], и пропишем тему для Color в pacman.conf'
+# Add a new repository [archlinuxfr], and write the theme for Color in pacman.conf
+echo 'ILoveCandy' >> /etc/pacman.conf
+echo '[archlinuxfr]' >> /etc/pacman.conf
+echo '[SigLevel = Never]' >> /etc/pacman.conf
+echo 'Server = http://repo.archlinux.fr/$arch' >> /etc/pacman.conf
+pacman -Syy
+# Синхронизация и обновление пакетов (-yy принудительно обновить даже если обновленные)
 
 echo 'Установка "Pacman gui","Octopi" (AUR)(GTK)(QT)'
 # Installing "Pacman gui", "Octopi" (AUR)(GTK)(QT)
@@ -232,14 +331,33 @@ echo 'Применяем настройки TLP (управления питан
 # Apply TLP (power management) settings depending on the power source (battery or mains)
 sudo tlp start
 
-echo 'Включаем сетевой экран'
-# Enabling the network screen
+echo 'Включаем сетевой экран?'
+# Enabling the network screen?
+read -p "1 - Да, 0 - Нет: " prog_set
+if [[ $prog_set == 1 ]]; then
 sudo ufw enable
+elif [[ $prog_set == 0 ]]; then
+  echo 'Установка программ пропущена.'
+fi
 
-echo 'Добавляем в автозагрузку сетевой экран'
-# Adding the network screen to auto-upload
+#echo 'Включаем сетевой экран'
+# Enabling the network screen
+#sudo ufw enable
+
+echo 'Добавляем в автозагрузку сетевой экран?'
+# Adding the network screen to auto-upload?
+read -p "1 - Да, 0 - Нет: " prog_set
+if [[ $prog_set == 1 ]]; then
 sudo systemctl enable ufw
+elif [[ $prog_set == 0 ]]; then
+  echo 'Установка программ пропущена.'
+fi
 
+#echo 'Добавляем в автозагрузку сетевой экран'
+# Adding the network screen to auto-upload
+#sudo systemctl enable ufw
+
+sleep 1
 echo 'Проверим статус запуска сетевой экран UFW'
 # Check the startup status of the UFW network screen
 sudo ufw status
@@ -249,15 +367,6 @@ echo 'Создать резервную копию (дубликат) файла
 sudo cp /boot/grub/grub.cfg grub.cfg.backup
 
 # ============================================================================
-#
-# !'Добавить репозиторий archlinuxfr и вписать тему для Color.'
-# sed -i 's/#Color/Color/' /etc/pacman.conf
-# ILoveCandy  >> /etc/pacman.conf
-# [archlinuxfr]
-# SigLevel = Never
-# Server = http://repo.archlinux.fr/$arch
-# sudo pacman -Syy
-
 # echo 'Добавить оскорбительное выражение после неверного ввода пароля в терминале'
 # Откройте на редактирование файл sudoers следующей командой в терминале:
 # sudo nano /etc/sudoers
@@ -265,31 +374,12 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 #   # Defaults env_keep += "QTDIR KDEDIR"
 # и ниже скопипастите следующую стоку:
 #     Defaults  badpass_message="Ты не администратор, придурок."
-#
-# ============================================================================
-#
-# Если возникли проблемы с обновлением, или установкой пакетов 
-# Выполните данные рекомендации:
-# author: 
-#
-# echo 'Обновление ключей системы'
-# {
-# echo "Создаётся генерация мастер-ключа (брелка) pacman, введите пароль (не отображается)..."
-# sudo pacman-key --init
-# echo "Далее идёт поиск ключей..."
-# sudo pacman-key --populate archlinux
-# echo "Обновление ключей..."
-# sudo pacman-key --refresh-keys
-# echo "Обновление баз данных пакетов..."
-# sudo pacman -Sy
-# }
-#
 # ============================================================================
 
-echo 'Удаление созданной папки (downloads), и скрипта установки программ (arch3.sh)'
-# Deleting the created folder (downloads) and the program installation script (arch3.sh)
-sudo rm -R ~/downloads/
-sudo rm -rf ~/arch3.sh
+#echo 'Запуск звуковой системы PulseAudio'
+# Starting the PulseAudio sound system
+#sudo start-pulseaudio-x11
+# Выполнить эту команду только после установки утилит 'Поддержка звука' и перезагрузки системы, если сервис 'Запуск системы PulseAudio (Запуск звуковой системы PulseAudio)'не включился, и не появился в автозапуске. Это можно посмотреть через, диспетчер настроек, в пункте меню 'Сеансы и автозапуск'.
 
 echo 'Установка завершена!'
 # The installation is now complete!
@@ -300,15 +390,16 @@ echo 'Желательно перезагрузить систему для пр
 echo 'Скачать и произвести запуск скрипта (archmy4)?'
 # Download and run the script (archmy4)?
 # echo 'wget git.io/archmy4 && sh archmy4'
-echo 'wget git.io/archmy4'
+echo -e "${YELLOW}==>  wget git.io/archmy4 ${NC}"
 # Команды по установке :
 # wget git.io/archmy4 
 # wget git.io/archmy4 && sh archmy4 --noconfirm
-
+echo '♥ Либо ты идешь вперед... либо в зад.' 
 # ============================================================================
-# echo 'Установка базовых программ и пакетов'
-# Installing basic programs and packages
-# sudo pacman -S wget --noconfirm
-# ============================================================================
+time
 
+echo 'Удаление созданной папки (downloads), и скрипта установки программ (archmy3)'
+# Deleting the created folder (downloads) and the program installation script (archmy3)
+sudo rm -R ~/downloads/
+sudo rm -rf ~/archmy3.sh
 
