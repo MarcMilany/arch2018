@@ -1,4 +1,5 @@
 #!/bin/bash
+# ============================================================================
 #_arch_fast_install_banner
 set > old_vars.log
 
@@ -16,14 +17,20 @@ _arch_fast_install_banner() {
 ┴ ┴┴└─└─┘┴ ┴  └─┘┴ ┴ ┴└─┘└└┘  ┴  ┴ ┴└─┘ ┴   ┴ ┴ ┴└─┘ ┴ ┴ ┴┴─┘┴─┘${RED}
  Arch Linux Install ${VERSION} - A script made with love by ${AUTHOR}
 ${NC}
-Arch Linux - это независимо разработанный универсальный дистрибутив GNU / Linux для архитектуры x86-64, который стремится предоставить последние стабильные версии большинства программ, следуя модели непрерывного выпуска. Arch Linux определяет простоту как без лишних дополнений или модификаций. Arch включает в себя многие новые функции, доступные пользователям GNU / Linux, включая systemd init system, современные файловые системы , LVM2, программный RAID, поддержку udev и initcpio (с mkinitcpio ), а также последние доступные ядра.
-Arch Linux - это дистрибутив общего назначения. После установки предоставляется только среда командной строки: вместо того, чтобы вырывать ненужные и нежелательные пакеты, пользователю предлагается возможность создать собственную систему, выбирая среди тысяч высококачественных пакетов, представленных в официальных репозиториях для x86- 64 архитектуры.
-Этот скрипт не задумывался, как обычный установочный с большим выбором DE, разметкой диска и т.д. И он не предназначет для новичков. Он предназначет для тех, кто ставил ArchLinux руками и понимает, что и для чего нужна каждая команда. 
+Arch Linux - это независимо разработанный универсальный дистрибутив GNU / Linux для архитектуры x86-64, который стремится предоставить последние стабильные версии большинства программ, следуя модели непрерывного выпуска.
+ Arch Linux определяет простоту как без лишних дополнений или модификаций. Arch включает в себя многие новые функции, доступные пользователям GNU / Linux, включая systemd init system, современные файловые системы , LVM2, программный RAID, поддержку udev и initcpio (с mkinitcpio ),а также последние доступные ядра.  
+Arch Linux - это дистрибутив общего назначения. После установки предоставляется только среда командной строки: вместо того, чтобы вырывать ненужные и нежелательные пакеты, пользователю предлагается возможность создать собственную систему, выбирая среди тысяч высококачественных пакетов, представленных в официальных репозиториях для x86-64 архитектуры.
+Этот скрипт не задумывался, как обычный установочный с большим выбором DE, разметкой диска и т.д.
+ И он не предназначен для новичков. Он предназначен для тех, кто ставил ArchLinux руками и понимает, что и для чего нужна каждая команда.  
+Его цель - это моментальное разворачивание системы со всеми конфигами. Смысл в том, что все изменения Вы делаете предварительно в самом скрипте и получаете возможность быстрой установки ArchLinux с вашими личными настройками (при условии, что вы его изменили под себя, в противном случае с моими настройками).${RED}
 
-Его цель - это моментальное разворачиванеи системы со всеми конфигами. Смысл в том что, все изменения вы делаете предварительно в самом скрипте и получаете возможность быстрой установки ArchLinux с вашими личными настройками (при условии, что вы его изменили под себя, в противном случае с моими настройками).
-ВНИМАНИЕ!
-Автор не несет ответственности за любое нанесение вреда при использовании скрипта. Используйте его на свой страх и риск или изменяйте под свои личные нужды."
+ ***************************** ВНИМАНИЕ! ***************************** 
+${NC} 
+Автор не несёт ответственности за любое нанесение вреда при использовании скрипта. 
+Вы используйте его на свой страх и риск, или изменяйте под свои личные нужды."
 }
+
+# ============================================================================
 
 ### Help and usage (--help or -h) (Справка)
 _help() {
@@ -91,6 +98,65 @@ _wget() {
     wget "${1}" --quiet --show-progress
 }
 
+### Execute action in chrooted environment (Выполнение действия в хромированной среде)
+_chroot() {
+    arch-chroot /mnt <<EOF "${1}"
+EOF
+}
+
+### Check command status and exit on error (Проверьте состояние команды и завершите работу с ошибкой)
+_check() {
+    "${@}"
+    local STATUS=$?
+    if [[ ${STATUS} -ne 0 ]]; then _error "${@}"; fi
+    return "${STATUS}"
+}
+
+### Display error, cleanup and kill (Ошибка отображения, очистка и убийство)
+_error() {
+    echo -e "\n${RED}Error: ${YELLOW}${*}${NC}"
+    _note "${MSG_ERROR}"
+    sleep 1; _cleanup; _exit_msg; kill -9 $$
+}
+
+### Cleanup on keyboard interrupt (Очистка при прерывании работы клавиатуры)
+#trap '_error ${MSG_KEYBOARD}' 1 2 3 6
+
+### Delete sources and umount partitions (Удаление источников и размонтирование разделов)
+_cleanup() {
+    _info "${MSG_CLEANUP}"
+    SRC=(base bootloader desktop display firmware gpu_driver mirrorlist \
+mounting partitioning user desktop_apps display_apps gpu_apps system_apps \
+00-keyboard.conf language loader.conf timezone xinitrc xprofile \
+background.png Grub2-themes archboot* *.log english french german)
+
+    # Sources (rm) (Источники (rm))
+    for SOURCE in "${SRC[@]}"; do
+        if [[ -f "${SOURCE}" ]]; then rm -rfv "${SOURCE}"; fi
+    done
+
+    # Swap (swapoff) Своп (swapoff)
+    CHECK_SWAP=$( swapon -s ); if [[ ${CHECK_SWAP} ]]; then swapoff -av; fi
+
+    # Partitions (umount) Разделы (umount)
+    if mount | grep /mnt; then umount -Rfv /mnt; fi
+}
+
+### Reboot with 10s timeout Перезагрузка с таймаутом 10 секунд
+_reboot() {
+    for (( SECOND=10; SECOND>=1; SECOND-- )); do
+        echo -ne "\r\033[K${GREEN}${MSG_REBOOT} ${SECOND}s...${NC}"
+        sleep 1
+    done
+    reboot; exit 0
+}
+
+### Say goodbye (Распрощаться)
+_exit_msg() {
+    echo -e "\n${GREEN}<<< ${BLUE}${APPNAME} ${VERSION} ${BOLD}by \
+${AUTHOR} ${RED}under ${LICENSE} ${GREEN}>>>${NC}"""
+}
+
 # ============================================================================
 # Arch Linux Fast Install (arch2018) - Быстрая установка Arch Linux 
 # Цель скрипта - быстрое развертывание системы с вашими персональными настройками (конфиг XFCE, темы, программы и т.д.).
@@ -102,32 +168,119 @@ _wget() {
 # Михаил Сарвилин https://vk.com/michael170707
 # Данил Антошкин https://vk.com/danil.antoshkin
 # Юрий Порунцов https://vk.com/poruncov
+# Marc Milany - "Не ищи меня "Вконтакте", в "Одноклассниках"" нас нету, ... 
 
 # Лицензия (license): LGPL-3.0 (http://opensource.org/licenses/lgpl-3.0.html
 # Installation guide - Arch Wiki
 # (referance): https://wiki.archlinux.org/index.php/Installation_guide
 # ============================================================================
+# Терминальный Мануал Arch Wiki :
+# Мы можем просмотреть какие файлы сейчас находятся катологе пользователя root
+#ls -la
+#less install.txt
+# ============================================================================
+# При установке системы наличие подключения к интернету обязательно.
+# Служба DHCP уже запущена при загрузке для найденных Ethernet-адаптеров. 
+# Для беспроводных сетевых адаптеров запустите wifi-menu.
+# Если выпадает ошибка с номером 213 или др., то выполните следующие команды:
+# kill 213 или др., и вновь запускаем dhcpcd
+# Запуск и проверка работы службы DHCP через RJ45 : dhcpcd
+# Подключение по wifi: wifi-menu
+# Если необходимо настроить статический IP или использовать другие средства настройки сети, 
+# остановите службу DHCP командой :
+# systemctl stop dhcpcd.service и используйте netctl.
+# Подключение через PPPoE: 
+# используйте для настройки программу pppoe-setup, для запуска — pppoe-start
+# ============================================================================
 # Команды по установке :
 # archiso login: root (automatic login)
 
-echo 'To check the Internet, you can ping a service'
+echo -e "${GREEN}=> ${NC}To check the Internet, you can ping a service" 
+#echo 'To check the Internet, you can ping a service'
 # Для проверки интернета можно пропинговать какой-либо сервис
-ping -c2 archlinux.org 
+ping -c2 archlinux.org
+# Например Яндекс или Google: 
+#ping -c5 www.google.com
+#ping -c5 ya.ru
 
-echo 'Setting up the Russian language, changing the console font to one that supports Cyrillic for ease of use'
+echo -e "${CYAN}==> ${NC}If the ping goes we go further ..."
+#echo 'If the ping goes we go further ...' 
+# Если пинг идёт едем дальше ...
+
+echo -e "${BLUE}:: ${NC}Setting up the Russian language, changing the console font to one that supports Cyrillic for ease of use" 
+#echo 'Setting up the Russian language, changing the console font to one that supports Cyrillic for ease of use'
  # Настроим русский язык, изменим консольный шрифт на тот, который поддерживает кириллицу для удобства работы
 loadkeys ru
 setfont cyr-sun16
+# ============================================================================
+# Чтобы изменить макет, добавьте соответствующее имя файла в loadkeys , пропустив путь и расширение файла. Например, чтобы установить немецкую раскладку клавиатуры:
+# loadkeys de-latin1
+# Консольные шрифты находятся внутри /usr/share/kbd/consolefonts/и также могут быть установлены с помощью setfont.
+# 
+# ============================================================================
+
+echo -e "${CYAN}==> ${NC}Добавим русскую локаль в систему установки"
+#echo 'Добавим русскую локаль в систему установки'
+# Adding a Russian locale to the installation system
+sed -i 's/#ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/' /etc/locale.gen
+#nano /etc/locale.gen
+# В файле /etc/locale.gen раскомментируйте (уберите # вначале) строку #ru_RU.UTF-8 UTF-8
+echo -e "${BLUE}:: ${NC}Обновим текущую локаль системы"
+#echo 'Обновим текущую локаль системы'
+# Update the current system locale
+locale-gen
+# Мы ввели locale-gen для генерации тех самых локалей.
+
+#sleep 01
+echo -e "${BLUE}:: ${NC}Указываем язык системы"
+#echo 'Указываем язык системы'
+# Specify the system language
+#echo 'LANG="ru_RU.UTF-8"' > /etc/locale.conf
+export LANG=ru_RU.UTF-8
+#export LANG=en_US.UTF-8
+# Эта команда сама пропишет в файлике locale.conf нужные нам параметры.
+# Ну и конечно, раз это переменные окружения, то мы можем установить их временно в текущей сессии терминала
+# При раскомментировании строки '#export ....', - Будьте Внимательными!
+# Как назовёшь, так и поплывёшь...
+# When you uncomment the string '#export....', Be Careful!
+# As you name it, you will swim...
 
 ### Display banner (Дисплей баннер)
 _arch_fast_install_banner
 
-echo '2.3 Синхронизация системных часов'
+sleep 02
+echo -e "${GREEN}
+  <<< Начинается установка минимальной системы Arch Linux >>>
+${NC}"
+# The installation of the minimum Arch Linux system starts
+
+echo -e "${BLUE}:: ${NC}2.3 Синхронизация системных часов"  
+#echo '2.3 Синхронизация системных часов'
 # Syncing the system clock
+echo 'Синхронизируем наши системные часы, включаем ntp, если надо сменим часовой пояс'
+# Sync our system clock, enable ntp, change the time zone if necessary
 timedatectl set-ntp true
 
-echo '2.4 Создание разделов'
-# Create partitions
+echo -e "${BLUE}:: ${NC}Посмотрим дату и время без характеристик для проверки времени"
+#echo 'Посмотрим дату и время без характеристик для проверки времени'
+# Let's look at the date and time without characteristics to check the time
+date
+
+# ============================================================================
+# ВНИМАНИЕ!
+# Скрипт затирает диск dev/sda (First hard disk) в системе. Примечание для начинющих: 'Пожалуйста, не путайте с приоритетом загрузки устройств, и их последовательного отображения в Bios'. (Пожалуйста, не путайте! - это вчера мне было п#здато, а сегодня мне п#здец!). Поэтому если у Вас есть ценные данные на дисках сохраните их. 
+# Если Вам нужна установка рядом с Windows, тогда Вам нужно предварительно изменить скрипт и разметить диски. В противном случае данные и Windows будут затерты.
+# Если Вам не подходит автоматическая разметка дисков, тогда предварительно нужно сделать разметку дисков и настроить скрипт под свои нужды (программы, XFCE config и т.д.)
+# Смотрите пометки в самом скрипте!
+# ============================================================================
+# Разбиваем диски (есть два способа разбивки дисков: 1)fdisk - чисто консольный; 2)cfdisk - псевдографический).
+# Разбиваем диски (для ручной разметки используем fdisk, для псевдографической разбивки можно использовать команду cfdisk).
+# ============================================================================
+# Ещё раз проверте правильность разбивки на разделы!
+
+echo -e "${BLUE}:: ${NC}2.4 Создание разделов диска"   
+#echo '2.4 Создание разделов диска'
+# Creating disk partitions
 (
   echo o;
 
@@ -159,38 +312,105 @@ echo '2.4 Создание разделов'
   echo w;
 ) | fdisk /dev/sda
 
-echo 'Ваша разметка диска'
+echo -e "${BLUE}:: ${NC}Ваша разметка диска" 
+#echo 'Ваша разметка диска'
 # Your disk markup
 fdisk -l
 
-echo '2.4.2 Форматирование разделов диска'
+echo -e "${BLUE}:: ${NC}2.4.2 Форматирование разделов диска"
+#echo '2.4.2 Форматирование разделов диска'
 # Formatting disk partitions
+echo -e "${BLUE}:: ${NC}Установка название флага boot,root,swap,home"
+#echo 'Установка название флага boot,root,swap,home'
+# Setting the flag name boot, root,swap, home
 mkfs.ext2  /dev/sda1 -L boot
 mkswap /dev/sda2 -L swap
 mkfs.ext4  /dev/sda3 -L root
 mkfs.ext4  /dev/sda4 -L home
+# Просмотреть все идентификаторы наших разделов можно командой:
+#blkid
 
-echo '2.4.3 Монтирование разделов диска'
+echo -e "${BLUE}:: ${NC}2.4.3 Монтирование разделов диска"
+#echo '2.4.3 Монтирование разделов диска'
 # Mounting disk partitions
 mount /dev/sda3 /mnt
 mkdir /mnt/{boot,home}
 mount /dev/sda1 /mnt/boot
 swapon /dev/sda2
 mount /dev/sda4 /mnt/home
+# Посмотреть что мы намонтировали можно командой:
+#mount | grep sda    
+# - покажет куда был примонтирован sda
 
-echo '3.1 Выбор серверов-зеркал для загрузки. Ставим зеркало от Яндекс'
+echo -e "${BLUE}:: ${NC}3.1 Выбор серверов-зеркал для загрузки. Ставим зеркало от Яндекс"
+#echo '3.1 Выбор серверов-зеркал для загрузки. Ставим зеркало от Яндекс'
 # The choice of mirror sites to download. Putting a mirror from Yandex
-echo "Server = http://mirror.yandex.ru/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+#echo "Server = http://mirror.yandex.ru/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+> /etc/pacman.d/mirrorlist
+cat <<EOF >>/etc/pacman.d/mirrorlist
 
-echo '3.2 Установка основных пакетов (base base-devel)'
+##
+## Arch Linux repository mirrorlist
+## Generated on 2020-05-14
+## HTTP IPv4 HTTPS
+##
+
+## Russia
+Server = https://mirror.rol.ru/archlinux/\$repo/os/\$arch
+Server = https://mirror.yandex.ru/archlinux/\$repo/os/\$arch
+#Server = http://mirror.rol.ru/archlinux/\$repo/os/\$arch
+#Server = http://mirror.truenetwork.ru/archlinux/\$repo/os/\$arch
+#Server = http://mirror.yandex.ru/archlinux/\$repo/os/\$arch
+#Server = http://archlinux.zepto.cloud/\$repo/os/\$arch
+
+EOF
+
+# Pacman Mirrorlist Generator
+# https://www.archlinux.org/mirrorlist/
+# Эта страница генерирует самый последний список зеркал, возможный для Arch Linux. Используемые здесь данные поступают непосредственно из внутренней базы данных зеркал разработчиков, используемой для отслеживания доступности и уровня зеркалирования. 
+# Есть два основных варианта: получить список зеркал с каждым доступным зеркалом или получить список зеркал, адаптированный к вашей географии.
+
+echo -e "${BLUE}:: ${NC}Обновим базы данных пакетов" 
+#echo 'Обновим базы данных пакетов'
+# Updating the package databases
+sudo pacman -Sy        
+
+echo -e "${BLUE}:: ${NC}3.2 Установка основных пакетов (base base-devel)"
+#echo '3.2 Установка основных пакетов (base base-devel)'
 # Installing basic packages (base base-devel)
 pacstrap /mnt base base-devel linux-lts linux-firmware nano dhcpcd netctl vim
+#pacstrap -i /mnt base base-devel linux linux-firmware nano dhcpcd netctl vim --noconfirm
 
-echo '3.3 Настройка системы, генерируем fstab'
+# ============================================================================
+# В официальном wiki от arch https://wiki.archlinux.org/index.php/Installation_guide ,
+# написано pacstrap /mnt base, советую тут повторить за мной, ибо если Вам нужен доступ к AUR (Arch User Repository) Вам надо будет base-devel (есть возможность поставить когда угодно).
+# Основные элементы уже у Вас на жестком диске, теперь надо сделать чтобы оно всё запускалось и работало.
+# ============================================================================
+
+echo -e "${BLUE}:: ${NC}3.3 Настройка системы, генерируем fstab" 
+#echo '3.3 Настройка системы, генерируем fstab'
 # Configuring the system, generating fstab
 genfstab -pU /mnt >> /mnt/etc/fstab
+#(или genfstab -L /mnt >> /mnt/etc/fstab)
+# Просмотреть содержимое файла можно командой:
+#cat /mnt/etc/fstab
+# ============================================================================
+# Был создан файл содержащий данные о монтируемых файловых системах.
+# Чтобы система знала какие разделы монтировать при старте.
+# ============================================================================
 
-echo 'Меняем корень и переходим в нашу недавно скачанную систему'
+#echo -e "${BLUE}:: ${NC}Копируем созданный список зеркал (mirrorlist) в /mnt"
+#echo 'Копируем созданный список зеркал (mirrorlist) в /mnt'
+# Copying the created list of mirrors (mirrorlist) to /mnt
+#cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
+echo -e "${GREEN}==> ${NC}Меняем корень и переходим в нашу недавно скачанную систему" 
+#echo 'Меняем корень и переходим в нашу недавно скачанную систему'
 # Change the root and go to our recently downloaded system
 arch-chroot /mnt sh -c "$(curl -fsSL git.io/arch2.sh)"
-
+# ============================================================================
+# Change root. Здесь мы просто переходим в нашу недавно скачанную систему, теперь можно устанавливать всё что угодно, оно останется у Вас в системе.
+# Chroot на практике - полезные статьи :
+# https://wiki.archlinux.org/index.php/Chroot_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)
+# http://www.unix-lab.org/posts/chroot/
+# ============================================================================
