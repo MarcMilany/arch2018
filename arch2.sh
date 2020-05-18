@@ -40,7 +40,14 @@ ${GREY}<https://wiki.archlinux.org/index.php/Installation_guide>${NC}"
 ### SHARED VARIABLES AND FUNCTIONS (ОБЩИЕ ПЕРЕМЕННЫЕ И ФУНКЦИИ)
 ### Shell color codes (Цветовые коды оболочки)
 RED="\e[1;31m"; GREEN="\e[1;32m"; YELLOW="\e[1;33m"; GREY="\e[3;93m"
-BLUE="\e[1;34m"; CYAN="\e[1;36m"; BOLD="\e[1;37m"; NC="\e[0m"
+BLUE="\e[1;34m"; CYAN="\e[1;36m"; BOLD="\e[1;37m"; MAGENTA="\e[1;35m"; NC="\e[0m"
+
+# Вот список цветов, которые можно применять для подсветки синтаксиса в bash:
+# BLACK='\e[0;30m' GREEN='\e[0;32m' BLUE='\e[0;34m'    CYAN='\e[0;36m'
+# RED='\e[0;31m'   BROWN='\e[0;33m' MAGENTA='\e[0;35m' GRAY='\e[0;37m'
+# DEF='\e[0;39m'   'LRED='\e[1;31m    YELLOW='\e[1;33m' LMAGENTA='\e[1;35m' WHITE='\e[1;37m'
+# DGRAY='\e[1;30m'  LGREEN='\e[1;32m' LBLUE='\e[1;34m'  LCYAN='\e[1;36m'    NC='\e[0m' # No Color
+# Индивидуальные настройки подсветки синтаксиса для каждого пользователя можно настраивать в конфигурационном файле /home/$USER/.bashrc
 
 ### Display some notes (Дисплей некоторые заметки)
 _note() {
@@ -244,12 +251,18 @@ fi
 # https://www.ekzorchik.ru/2012/04/hardware-time-settings-hwclock/
 # ============================================================================
 
+echo -e "${BLUE}:: ${NC}Посмотрим обновление времени (если настройка не была пропущена)"
+#echo 'Посмотрим обновление времени (если настройка не была пропущена)'
+# See the time update (if the setting was not skipped)
+timedatectl show
+#timedatectl | grep Time
+
 echo -e "${BLUE}:: ${NC}Изменяем имя хоста"
 #echo 'Изменяем имя хоста'
 # Changing the host name
-echo "127.0.0.1	localhost.(none)" > /etc/hosts
-echo "127.0.1.1	$hostname" >> /etc/hosts
-echo "::1	localhost ip6-localhost ip6-loopback" >> /etc/hosts
+echo "127.0.0.1 localhost.(none)" > /etc/hosts
+echo "127.0.1.1 $hostname" >> /etc/hosts
+echo "::1   localhost ip6-localhost ip6-loopback" >> /etc/hosts
 echo "ff02::1 ip6-allnodes" >> /etc/hosts
 echo "ff02::2 ip6-allrouters" >> /etc/hosts
 #echo "127.0.1.1 имя_компьютера" >> /etc/hosts
@@ -490,13 +503,17 @@ sudo pacman -S wget --noconfirm
 # ============================================================================
 
 echo -e "${GREEN}
-  <<< Установка завершена! Перезагрузите систему. >>>
-${NC}"
+  <<< Установка завершена! Перезагрузите систему. >>> ${NC}"
 # The installation is now complete! Reboot the system.
+
+echo -e "${MAGENTA}==> ${NC}Проверяйте ваши персональные настройки"
+#echo 'Проверяйте ваши персональные настройки'
+# Checking personal setting
+echo -e "${YELLOW}==> ${CYAN} ...${NC}"
 
 echo 'Если хотите подключить AUR, установить дополнительный софт (пакеты), установить мои конфиги XFCE, тогда после перезагрузки и входа в систему выполните команду:'
 # If you want to connect AUR, install additional software (packages), install my Xfce configs, then after restarting and logging in, run the command:
-echo -e "${YELLOW}==> wget git.io/arch3.sh && sh arch3.sh ${NC}"
+echo -e "${YELLOW}==> wget git.io/archmy3 && sh archmy3 ${NC}"
 
 echo -e "${RED}==> ${NC}Выходим из установленной системы"
 #echo 'Выходим из установленной системы'
