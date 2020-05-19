@@ -178,75 +178,90 @@ echo -e "${GREEN}=> ${NC}Для проверки интернета можно �
 # To check the Internet, you can ping a service
 ping -c2 archlinux.org
 
-
-echo 'Создадим папку (downloads), и переходим в созданную папку'
+echo -e "${YELLOW}==> ${NC}Создадим папку (downloads), и переходим в созданную папку"
+#echo 'Создадим папку (downloads), и переходим в созданную папку'
 # Create a folder (downloads), and go to the created folder
 #rm -rf ~/.config/xfce4/*
 mkdir ~/downloads
 cd ~/downloads
 
 echo -e "${GREEN}==> ${NC}${BLUE}'Установка AUR Helper (yay)'${NC}"
-# echo 'Установка AUR Helper (yay)'
+#echo 'Установка AUR Helper (yay)'
 # Installing AUR Helper (yay)
 sudo pacman -Syu
 wget git.io/yay-install.sh && sh yay-install.sh --noconfirm
 
-echo 'Обновим всю систему включая AUR пакеты'
+echo -e "${BLUE}:: ${NC}Обновим всю систему включая AUR пакеты" 
+#echo 'Обновим всю систему включая AUR пакеты'
 # Update the entire system including AUR packages
 yay -Syy
 yay -Syu
 
-echo 'Ставим Bluetooth и Поддержка звука'
+echo -e "${BLUE}:: ${NC}Ставим Bluetooth и Поддержка звука" 
+#echo 'Ставим Bluetooth и Поддержка звука'
 # Setting Bluetooth and Sound support
 sudo pacman -S bluez bluez-libs bluez-cups bluez-utils --noconfirm
 sudo pacman -S alsa-utils alsa-plugins alsa-firmware alsa-lib alsa-utils --noconfirm 
 sudo pacman -S pulseaudio pulseaudio-alsa pavucontrol pulseaudio-zeroconf pulseaudio-bluetooth xfce4-pulseaudio-plugin --noconfirm
 
-echo 'Ставим Архиваторы "Компрессионные Инструменты"'
+echo -e "${BLUE}:: ${NC}Ставим Архиваторы Компрессионные Инструменты" 
+#echo 'Ставим Архиваторы "Компрессионные Инструменты"'
 # Putting Archivers "Compression Tools
 sudo pacman -S zip unzip unrar p7zip zlib zziplib --noconfirm
 
-echo 'Ставим дополнения к Архиваторам'
+echo -e "${BLUE}:: ${NC}Ставим дополнения к Архиваторам" 
+#echo 'Ставим дополнения к Архиваторам'
 # Adding extensions to Archivers
 sudo pacman -S unace sharutils uudeview arj cabextract --noconfirm
 
-echo 'Ставим Драйвера принтера (Поддержка печати)'
+echo -e "${BLUE}:: ${NC}Ставим Драйвера принтера (Поддержка печати)" 
+#echo 'Ставим Драйвера принтера (Поддержка печати)'
 # Putting the printer Drivers (Print support)
 sudo pacman -S cups ghostscript cups-pdf --noconfirm
 
-echo 'Установка базовых программ и пакетов'
+echo -e "${BLUE}:: ${NC}Установка базовых программ и пакетов" 
+#echo 'Установка базовых программ и пакетов'
 # Installing basic programs and packages
 sudo pacman -S aspell-ru arch-install-scripts bash-completion dosfstools f2fs-tools sane gvfs htop iftop iotop nmap ntfs-3g ntp ncdu hydra isomd5sum python-isomd5sum translate-shell mc pv sox youtube-dl speedtest-cli python-pip pwgen scrot git curl xsel --noconfirm 
 
-echo 'Установка терминальных утилит для вывода информации о системе'
+echo -e "${BLUE}:: ${NC}Установка терминальных утилит для вывода информации о системе" 
+#echo 'Установка терминальных утилит для вывода информации о системе'
 # Installing terminal utilities for displaying system information
 sudo pacman -S screenfetch archey3 neofetch --noconfirm  
 
-echo 'Установка Мультимедиа кодеков (multimedia codecs), и утилит'
+echo -e "${BLUE}:: ${NC}Установка Мультимедиа кодеков (multimedia codecs), и утилит" 
+#echo 'Установка Мультимедиа кодеков (multimedia codecs), и утилит'
 # Installing Multimedia codecs and utilities
 sudo pacman -S a52dec faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-bad gst-plugins-ugly libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab cdrdao gst-libav gst-libav gpac --noconfirm
 
-echo 'Установка Мультимедиа утилит'
+echo -e "${BLUE}:: ${NC}Установка Мультимедиа утилит" 
+#echo 'Установка Мультимедиа утилит'
 # Installing Multimedia utilities
 sudo pacman -S audacity audacious audacious-plugins smplayer smplayer-skins smplayer-themes smtube deadbeef easytag subdownloader mediainfo-gui vlc --noconfirm
 
-echo 'Установка Текстовые редакторы и утилиты разработки'
+echo -e "${BLUE}:: ${NC}Установка Текстовые редакторы и утилиты разработки" 
+#echo 'Установка Текстовые редакторы и утилиты разработки'
 # Installation Text editors and development tools
 sudo pacman -S gedit gedit-plugins geany geany-plugins --noconfirm
 
-echo 'Управления электронной почтой, новостными лентами, чатом и группам'
+echo -e "${BLUE}:: ${NC}Управления электронной почтой, новостными лентами, чатом и группам" 
+#echo 'Управления электронной почтой, новостными лентами, чатом и группам'
 # Manage email, news feeds, chat, and groups
 sudo pacman -S thunderbird thunderbird-i18n-ru pidgin pidgin-hotkeys --noconfirm
 
-echo 'Установка Браузеров и медиа-плагинов'
+echo -e "${BLUE}:: ${NC}Установка Браузеров и медиа-плагинов" 
+#echo 'Установка Браузеров и медиа-плагинов'
 # Installing Browsers and media plugins
 sudo pacman -S firefox firefox-i18n-ru firefox-spell-ru flashplugin pepper-flash --noconfirm
 
-echo 'Установка Брандмауэра UFW и Антивирусного пакета ClamAV (GUI)(GTK+)'
+echo -e "${BLUE}:: ${NC}Установка Брандмауэра UFW и Антивирусного пакета ClamAV (GUI)(GTK+)" 
+#echo 'Установка Брандмауэра UFW и Антивирусного пакета ClamAV (GUI)(GTK+)'
 # Installing the UFW Firewall and clamav Antivirus package (GUI) (GTK+)
-echo 'Установка Производится в порядке перечисления'
+echo -e "${BLUE}:: ${NC}Установка Производится в порядке перечисления" 
+#echo 'Установка Производится в порядке перечисления'
 # Installation Is performed in the order listed
-echo 'Установить UFW (Несложный Брандмауэр) (GTK)?'
+echo -e "${GREEN}==> ${NC}Установить UFW (Несложный Брандмауэр) (GTK)?"
+#echo 'Установить UFW (Несложный Брандмауэр) (GTK)?'
 # Install UFW (Uncomplicated Firewall) (GTK)?
 read -p "1 - Да, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
@@ -255,7 +270,8 @@ elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
 
-echo 'Установить Clam AntiVirus (GTK)?'
+echo -e "${GREEN}==> ${NC}Установить Clam AntiVirus (GTK)?"
+#echo 'Установить Clam AntiVirus (GTK)?'
 # Install Clam AntiVirus (GTK)?
 read -p "1 - Да, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
@@ -264,11 +280,14 @@ elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
 
-echo 'Установка Torrent клиентов - Transmission, qBittorrent, Deluge (GTK)(Qt)(GTK+)'
+echo -e "${BLUE}:: ${NC}Установка Torrent клиентов - Transmission, qBittorrent, Deluge (GTK)(Qt)(GTK+)" 
+#echo 'Установка Torrent клиентов - Transmission, qBittorrent, Deluge (GTK)(Qt)(GTK+)'
 # Installing Torrent clients - Transmission, qBittorrent, Deluge (GTK) (Qt) (GTK+)
-echo 'Установка Производится в порядке перечисления'
+echo -e "${BLUE}:: ${NC}Установка Производится в порядке перечисления" 
+#echo 'Установка Производится в порядке перечисления'
 # Installation Is performed in the order listed
-echo 'Установить Transmission, qBittorrent, Deluge?'
+echo -e "${GREEN}==> ${NC}Установить Transmission, qBittorrent, Deluge?"
+#echo 'Установить Transmission, qBittorrent, Deluge?'
 # Install Transmission, qBittorrent, Deluge?
 read -p "1 - Transmission, 2 - qBittorrent, 3 - Deluge, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
@@ -281,11 +300,14 @@ elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
 
-echo 'Установка Офиса (LibreOffice-still, или LibreOffice-fresh)'
+echo -e "${BLUE}:: ${NC}Установка Офиса (LibreOffice-still, или LibreOffice-fresh)" 
+#echo 'Установка Офиса (LibreOffice-still, или LibreOffice-fresh)'
 # Office installation (LibreOffice-still, or LibreOffice-fresh)
-echo 'Установка Производится в порядке перечисления'
+echo -e "${BLUE}:: ${NC}Установка Производится в порядке перечисления" 
+#echo 'Установка Производится в порядке перечисления'
 # Installation Is performed in the order listed
-echo 'Установить LibreOffice-still, LibreOffice-fresh?'
+echo -e "${GREEN}==> ${NC}Установить LibreOffice-still, LibreOffice-fresh?"
+#echo 'Установить LibreOffice-still, LibreOffice-fresh?'
 # Install the LibreOffice-still and LibreOffice-fresh?
 read -p "1 - LibreOffice-still, 2 - LibreOffice-fresh, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
@@ -296,7 +318,8 @@ elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
 
-echo 'Установить рекомендованные программы?'
+echo -e "${GREEN}==> ${NC}Установить рекомендованные программы?"
+#echo 'Установить рекомендованные программы?'
 # Install the recommended programs
 echo -e "${BLUE}
 'Список программ рекомендованных к установке:${GREEN}
@@ -309,11 +332,13 @@ elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
 
-echo 'Утилиты для форматирования флэш-накопителя с файловой системой exFAT в Linux'
+echo -e "${BLUE}:: ${NC}Утилиты для форматирования флэш-накопителя с файловой системой exFAT в Linux" 
+#echo 'Утилиты для форматирования флэш-накопителя с файловой системой exFAT в Linux'
 # Utilities for formatting a flash drive with the exFAT file system in Linux
 sudo pacman -S exfat-utils fuse-exfat --noconfirm 
 
-echo 'Добавим новый репозиторий [archlinuxfr], и пропишем тему для Color в pacman.conf'
+echo -e "${BLUE}:: ${NC}Добавим новый репозиторий [archlinuxfr], и пропишем тему для Color в pacman.conf" 
+#echo 'Добавим новый репозиторий [archlinuxfr], и пропишем тему для Color в pacman.conf'
 # Add a new repository [archlinuxfr], and write the theme for Color in pacman.conf
 echo 'ILoveCandy' >> /etc/pacman.conf
 echo '[archlinuxfr]' >> /etc/pacman.conf
@@ -322,13 +347,16 @@ echo 'Server = http://repo.archlinux.fr/$arch' >> /etc/pacman.conf
 pacman -Syy
 # Синхронизация и обновление пакетов (-yy принудительно обновить даже если обновленные)
 
-echo 'Установка "Pacman gui","Octopi" (AUR)(GTK)(QT)'
+echo -e "${BLUE}:: ${NC}Установка Pacman gui,Octopi (AUR)(GTK)(QT)" 
+#echo 'Установка "Pacman gui","Octopi" (AUR)(GTK)(QT)'
 # Installing "Pacman gui", "Octopi" (AUR)(GTK)(QT)
-echo 'Установка Производится в порядке перечисления'
+echo -e "${BLUE}:: ${NC}Установка Производится в порядке перечисления" 
+#echo 'Установка Производится в порядке перечисления'
 # Installation Is performed in the order listed
-echo 'Установить "pamac-aur", "octopi"?'
+echo -e "${GREEN}==> ${NC}Установить pamac-aur, octopi?"
+#echo 'Установить "pamac-aur", "octopi"?'
 # Install "pacman-aur", "octopi"?
-read -p "1 - Pacmanc-aur, 2 - Octopi, 0 - Нет: " prog_set
+read -p "1 - Pacmac-aur, 2 - Octopi, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
 yay -S pamac-aur --noconfirm
 elif [[ $prog_set == 2 ]]; then
@@ -337,15 +365,18 @@ elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
 
-echo 'Обновим информацию о шрифтах'
+echo -e "${BLUE}:: ${NC}Обновим информацию о шрифтах" 
+#echo 'Обновим информацию о шрифтах'
 # Update information about fonts
 sudo fc-cache -f -v
 
-echo 'Применяем настройки TLP (управления питанием) в зависимости от источника питания (батарея или от сети)'
+echo -e "${BLUE}:: ${NC}Применяем настройки TLP (управления питанием) в зависимости от источника питания (батарея или от сети)" 
+#echo 'Применяем настройки TLP (управления питанием) в зависимости от источника питания (батарея или от сети)'
 # Apply TLP (power management) settings depending on the power source (battery or mains)
 sudo tlp start
 
-echo 'Включаем сетевой экран?'
+echo -e "${YELLOW}==> ${NC}Включаем сетевой экран?"
+#echo 'Включаем сетевой экран?'
 # Enabling the network screen?
 read -p "1 - Да, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
@@ -358,7 +389,8 @@ fi
 # Enabling the network screen
 #sudo ufw enable
 
-echo 'Добавляем в автозагрузку сетевой экран?'
+echo -e "${YELLOW}==> ${NC}Добавляем в автозагрузку сетевой экран?"
+#echo 'Добавляем в автозагрузку сетевой экран?'
 # Adding the network screen to auto-upload?
 read -p "1 - Да, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
@@ -372,11 +404,13 @@ fi
 #sudo systemctl enable ufw
 
 sleep 1
-echo 'Проверим статус запуска сетевой экран UFW'
+echo -e "${BLUE}:: ${NC}Проверим статус запуска сетевой экран UFW" 
+#echo 'Проверим статус запуска сетевой экран UFW'
 # Check the startup status of the UFW network screen
 sudo ufw status
 
-echo 'Создать резервную копию (дубликат) файла grub.cfg'
+echo -e "${BLUE}:: ${NC}Создать резервную копию (дубликат) файла grub.cfg" 
+#echo 'Создать резервную копию (дубликат) файла grub.cfg'
 # Create a backup (duplicate) of the grub.cfg file
 sudo cp /boot/grub/grub.cfg grub.cfg.backup
 
@@ -395,13 +429,16 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 #sudo start-pulseaudio-x11
 # Выполнить эту команду только после установки утилит 'Поддержка звука' и перезагрузки системы, если сервис 'Запуск системы PulseAudio (Запуск звуковой системы PulseAudio)'не включился, и не появился в автозапуске. Это можно посмотреть через, диспетчер настроек, в пункте меню 'Сеансы и автозапуск'.
 
-echo 'Установка завершена!'
+echo -e "${GREEN}==> ${NC}Установка завершена!"
+#echo 'Установка завершена!'
 # The installation is now complete!
 
-echo 'Желательно перезагрузить систему для применения изменений'
+echo -e "${YELLOW}==> ${NC}Желательно перезагрузить систему для применения изменений"
+#echo 'Желательно перезагрузить систему для применения изменений'
 # It is advisable to restart the system to apply the changes
 
-echo 'Скачать и произвести запуск скрипта (archmy4)?'
+echo -e "${BLUE}==> ${NC}Скачать и произвести запуск скрипта (archmy4)?"
+#echo 'Скачать и произвести запуск скрипта (archmy4)?'
 # Download and run the script (archmy4)?
 # echo 'wget git.io/archmy4 && sh archmy4'
 echo -e "${YELLOW}==>  wget git.io/archmy4 ${NC}"
@@ -416,4 +453,3 @@ echo 'Удаление созданной папки (downloads), и скрип�
 # Deleting the created folder (downloads) and the program installation script (archmy3)
 sudo rm -R ~/downloads/
 sudo rm -rf ~/archmy3
-
