@@ -380,7 +380,7 @@ EOF
 echo -e "${BLUE}:: ${NC}Обновим базы данных пакетов" 
 #echo 'Обновим базы данных пакетов'
 # Updating the package databases
-sudo pacman -Sy        
+sudo pacman -Sy  
 
 echo -e "${BLUE}:: ${NC}3.2 Установка основных пакетов (base base-devel)"
 #echo '3.2 Установка основных пакетов (base base-devel)'
