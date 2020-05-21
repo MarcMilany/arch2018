@@ -420,6 +420,10 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 # sudo pacman -Syy
 # Синхронизация и обновление пакетов (-yy принудительно обновить даже если обновленные)
 # ============================================================================
+# Прозрачность панели XFCE:
+# Выберите цвет панели /bn/ - #4072BF
+# Регулируйте прозрачность не панели, а
+# внешний вид → стиль → выбрать сплошной цвет → в выборе цвета задайте прозрачность (ползунок снизу)
 # ============================================================================
 # Дописать в файлик по адресу home/.config/Thunar/uca.xml
 # uca.xml :
@@ -451,6 +455,40 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 #    <description>find files and folders</description>
 #    <patterns>*</patterns>
 #    <directories/>
+#</action>
+#</actions>
+#
+#  Или
+#<?xml encoding="UTF-8" version="1.0"?>
+#<actions>
+#<action>
+#    <icon>utilities-terminal</icon>
+#    <name>_Terminal</name>
+#    <unique-id>1476165034892557-17</unique-id>
+#    <command>exo-open --working-directory %f --launch TerminalEmulator</command>
+#    <description>Example for a custom action</description>
+#    <patterns>*</patterns>
+#    <startup-notify/>
+#    <directories/>
+#</action>
+#<action>
+#    <icon>folder_color_red</icon>
+#    <name>Root T_hunar</name>
+#    <unique-id>1476164980531587-13</unique-id>
+#    <command>pkexec thunar %f</command>
+#    <description></description>
+#    <patterns>*</patterns>
+#    <directories/>
+#</action>
+#<action>
+#    <icon>text-editor</icon>
+#    <name>Edit as Root</name>
+#    <unique-id>1476164983371929-14</unique-id>
+#    <command>pkexec xed %f</command>
+#    <description>Edit as root</description>
+#    <patterns>*</patterns>
+#    <other-files/>
+#    <text-files/>
 #</action>
 #</actions>
 #
