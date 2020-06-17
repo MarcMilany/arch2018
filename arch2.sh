@@ -411,12 +411,12 @@ pacman -S os-prober mtools fuse
 echo -e "${BLUE}:: ${NC}Ставим программу для Wi-fi"
 #echo 'Ставим программу для Wi-fi'
 # Install the program for Wi-fi
-pacman -S dialog wpa_supplicant iw wireless_tools net-tools --noconfirm 
+pacman -S dialog wpa_supplicant iw wireless_tools net-tools rfkill --noconfirm 
  
 #read -p "Установить программу (пакет) для Wi-fi?: 1 - да 2 - нет " wifi
 #if [[ $wifi == 1 ]]; then
 #  echo 'Ставим программу для Wi-fi'
-#  pacman -S dialog wpa_supplicant iw wireless_tools net-tools --noconfirm 
+#  pacman -S dialog wpa_supplicant iw wireless_tools net-tools rfkill --noconfirm 
 #elif [[ $wifi == 2 ]]; then
 #  echo 'лан'
 #fi
@@ -425,9 +425,9 @@ echo -e "${BLUE}:: ${NC}Добавляем пользователя и проп�
 #echo 'Добавляем пользователя и прописываем права, группы'
 # Adding a user and prescribing rights, groups
 #useradd -m -g users -G wheel -s /bin/bash $username
-useradd -m -g users -G wheel,audio,games,lp,optical,power,scanner,storage,video,sys -s /bin/bash $username
+useradd -m -g users -G wheel,adm,audio,games,lp,optical,power,scanner,storage,video,sys,rfkill -s /bin/bash $username
 # или есть команда с правами 'админа' :
-#useradd -m -g users -G adm,audio,games,lp,optical,power,scanner,storage,video,sys,wheel -s /bin/bash $username
+#useradd -m -g users -G adm,audio,games,lp,optical,power,scanner,storage,video,sys,rfkill,wheel -s /bin/bash $username
 
 echo -e "${GREEN}==> ${NC}Устанавливаем пароль пользователя"
 #echo 'Устанавливаем пароль пользователя'
@@ -455,8 +455,9 @@ echo -e "${BLUE}:: ${NC}Раскомментируем репозиторий mu
 # Uncomment the multilib repository For running 32-bit applications on a 64-bit system
 #echo 'Color = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
 sed -i 's/#Color/Color/' /etc/pacman.conf
-echo '[multilib]' >> /etc/pacman.conf
-echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+#echo '[multilib]' >> /etc/pacman.conf
+#echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
 pacman -Syy
 #pacman -Syy --noconfirm --noprogressbar --quiet
 # Синхронизация и обновление пакетов (-yy принудительно обновить даже если обновленные)
@@ -581,6 +582,7 @@ echo -e "${RED}==> ${NC}Выходим из установленной сист�
 #echo 'Выходим из установленной системы'
 # Exiting the installed system
 exit 
+#umount -Rf /mnt
 
 # Разделы (отмонтировать) Partitions (umount) 
 #umount -Rfv /mnt
