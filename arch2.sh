@@ -195,6 +195,7 @@ echo -e "${BLUE}:: ${NC}Прописываем имя компьютера"
 # Entering the computer name
 echo $hostname > /etc/hostname
 #echo "имя_компьютера" > /etc/hostname
+#echo HostName > /etc/hostname
 # ============================================================================
 # Разберём команду для localhost >>>
 # Вместо ArchLinux впишите свое название
@@ -205,6 +206,7 @@ echo $hostname > /etc/hostname
 echo -e "${BLUE}:: ${NC}Устанавливаем ваш часовой пояс"
 #echo 'Устанавливаем ваш часовой пояс'
 # Setting your time zone
+#rm -v /etc/localtime
 ln -svf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 #ln -svf /usr/share/zoneinfo/$timezone /etc/localtime
 #ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
@@ -217,6 +219,7 @@ echo -e "${BLUE}:: ${NC}Проверим аппаратное время"
 # Check the hardware time
 #hwclock
 hwclock --systohc
+#hwclock --systohc —utc
 
 echo -e "${BLUE}:: ${NC}Посмотрим текущее состояние аппаратных и программных часов"
 #echo 'Посмотрим текущее состояние аппаратных и программных часов'
@@ -308,6 +311,7 @@ echo -e "${BLUE}:: ${NC}Указываем язык системы"
 #echo 'Указываем язык системы'
 # Specify the system language
 echo 'LANG="ru_RU.UTF-8"' > /etc/locale.conf
+#echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
 #export LANG=ru_RU.UTF-8
 #export LANG=en_US.UTF-8
 # Эта команда сама пропишет в файлике locale.conf нужные нам параметры.
@@ -578,7 +582,16 @@ echo -e "${RED}==> ${NC}Выходим из установленной сист�
 # Exiting the installed system
 exit 
 
+# Разделы (отмонтировать) Partitions (umount) 
+#umount -Rfv /mnt
+#umount -R /mnt
 
+#echo -e "${BLUE}:: ${NC}Сейчас следует перезагрузить систему"
+#echo 'После перезагрузки заходим под пользователем'
+#Перезагрузка.После перезагрузки заходим под пользователем
+#Reboot.After restarting, go under the user
+#read -p "Пауза 3 ceк." -t 3
+#reboot
 
 
 
