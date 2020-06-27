@@ -208,11 +208,19 @@ echo -e "${BLUE}:: ${NC}Устанавливаем ваш часовой поя�
 # Setting your time zone
 #rm -v /etc/localtime
 ln -svf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+#timedatectl set-ntp true
 #ln -svf /usr/share/zoneinfo/$timezone /etc/localtime
 #ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 #ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 #ln -svf /usr/share/zoneinfo/Asia/Yekaterinburg /etc/localtime
 #ln -svf /usr/share/zoneinfo/Europe/Kiev /etc/localtime
+
+echo -e "${BLUE}:: ${NC}Синхронизация системных часов"  
+#echo '2.3 Синхронизация системных часов'
+# Syncing the system clock
+#echo 'Синхронизируем наши системные часы, включаем ntp, если надо сменим часовой пояс'
+# Sync our system clock, enable ntp, change the time zone if necessary
+timedatectl set-ntp true
 
 echo -e "${BLUE}:: ${NC}Проверим аппаратное время"
 #echo 'Проверим аппаратное время' 
@@ -280,9 +288,9 @@ timedatectl show
 echo -e "${BLUE}:: ${NC}Изменяем имя хоста"
 #echo 'Изменяем имя хоста'
 # Changing the host name
-echo "127.0.0.1 localhost.(none)" > /etc/hosts
-echo "127.0.1.1 $hostname" >> /etc/hosts
-echo "::1   localhost ip6-localhost ip6-loopback" >> /etc/hosts
+echo "127.0.0.1	localhost.(none)" > /etc/hosts
+echo "127.0.1.1	$hostname" >> /etc/hosts
+echo "::1	localhost ip6-localhost ip6-loopback" >> /etc/hosts
 echo "ff02::1 ip6-allnodes" >> /etc/hosts
 echo "ff02::2 ip6-allrouters" >> /etc/hosts
 #echo "127.0.1.1 имя_компьютера" >> /etc/hosts
@@ -411,12 +419,12 @@ pacman -S os-prober mtools fuse
 echo -e "${BLUE}:: ${NC}Ставим программу для Wi-fi"
 #echo 'Ставим программу для Wi-fi'
 # Install the program for Wi-fi
-pacman -S dialog wpa_supplicant iw wireless_tools net-tools rfkill --noconfirm 
+pacman -S dialog wpa_supplicant iw wireless_tools net-tools --noconfirm 
  
 #read -p "Установить программу (пакет) для Wi-fi?: 1 - да 2 - нет " wifi
 #if [[ $wifi == 1 ]]; then
 #  echo 'Ставим программу для Wi-fi'
-#  pacman -S dialog wpa_supplicant iw wireless_tools net-tools rfkill --noconfirm 
+#  pacman -S dialog wpa_supplicant iw wireless_tools net-tools --noconfirm 
 #elif [[ $wifi == 2 ]]; then
 #  echo 'лан'
 #fi
@@ -425,7 +433,7 @@ echo -e "${BLUE}:: ${NC}Добавляем пользователя и проп�
 #echo 'Добавляем пользователя и прописываем права, группы'
 # Adding a user and prescribing rights, groups
 #useradd -m -g users -G wheel -s /bin/bash $username
-useradd -m -g users -G wheel,adm,audio,games,lp,optical,power,scanner,storage,video,sys,rfkill -s /bin/bash $username
+useradd -m -g users -G adm,audio,games,lp,network,optical,power,scanner,storage,video,rfkill,sys,wheel -s /bin/bash $username
 # или есть команда с правами 'админа' :
 #useradd -m -g users -G adm,audio,games,lp,optical,power,scanner,storage,video,sys,rfkill,wheel -s /bin/bash $username
 

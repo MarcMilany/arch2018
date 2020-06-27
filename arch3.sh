@@ -204,6 +204,13 @@ echo -e "${GREEN}==> ${NC}${BLUE}'Установка AUR Helper (yay)'${NC}"
 # Installing AUR Helper (yay)
 sudo pacman -Syu
 wget git.io/yay-install.sh && sh yay-install.sh --noconfirm
+#sudo pacman -S --noconfirm --needed wget curl git 
+#git clone https://aur.archlinux.org/yay-bin.git
+#cd yay-bin
+### makepkg -si
+#makepkg -si --skipinteg
+#cd ..
+#rm -rf yay-bin
 
 echo -e "${BLUE}:: ${NC}Обновим всю систему включая AUR пакеты" 
 #echo 'Обновим всю систему включая AUR пакеты'
@@ -236,7 +243,7 @@ sudo pacman -S cups ghostscript cups-pdf --noconfirm
 echo -e "${BLUE}:: ${NC}Установка базовых программ и пакетов" 
 #echo 'Установка базовых программ и пакетов'
 # Installing basic programs and packages
-sudo pacman -S aspell-ru arch-install-scripts bash-completion dosfstools f2fs-tools sane gvfs htop iftop iotop nmap ntfs-3g ntp ncdu hydra isomd5sum python-isomd5sum translate-shell mc pv sox youtube-dl speedtest-cli python-pip pwgen scrot git curl xsel --noconfirm 
+sudo pacman -S aspell-ru arch-install-scripts bash-completion dosfstools f2fs-tools sane gvfs gnu-netcat htop iftop iotop nmap ntfs-3g ntp ncdu hydra isomd5sum python-isomd5sum translate-shell mc pv reflector sox youtube-dl speedtest-cli python-pip pwgen scrot git curl xsel --noconfirm 
 
 echo -e "${BLUE}:: ${NC}Установка терминальных утилит для вывода информации о системе" 
 #echo 'Установка терминальных утилит для вывода информации о системе'
@@ -337,11 +344,11 @@ echo -e "${GREEN}==> ${NC}Установить рекомендованные п
 # Install the recommended programs
 echo -e "${BLUE}
 'Список программ рекомендованных к установке:${GREEN}
-bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm'
+bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm lsof dmidecode'
 ${NC}"
 read -p "1 - Да, 0 - Нет: " prog_set
 if [[ $prog_set == 1 ]]; then
-sudo pacman -S bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm --noconfirm 
+sudo pacman -S bleachbit gparted grub-customizer conky conky-manager dconf-editor doublecmd-gtk2 gnome-system-monitor obs-studio openshot frei0r-plugins redshift veracrypt onboard clonezilla moc filezilla gnome-calculator nomacs osmo synapse telegram-desktop plank psensor keepass copyq variety grsync numlockx modem-manager-gui uget xarchiver-gtk2 rofi gsmartcontrol testdisk glances tlp tlp-rdw file-roller meld cmake xterm lsof dmidecode --noconfirm 
 elif [[ $prog_set == 0 ]]; then
   echo 'Установка программ пропущена.'
 fi
@@ -439,6 +446,17 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 # Регулируйте прозрачность не панели, а
 # внешний вид → стиль → выбрать сплошной цвет → в выборе цвета задайте прозрачность (ползунок снизу)
 # ============================================================================
+#Основное
+#Имя:  Thunar Root
+#Описание:  Thunar Root
+#Открыть папку с привилегиями root
+#Команда:  pkexec thunar %f
+#Сочетание клавиш: 
+#Значёк:  folder-blue
+#Условия появления 
+#Шаблоны имени файла:  *.txt;*.doc;*
+#Каталоги  Текстовые файлы
+# ----------------------------------------------------------------------------
 # Дописать в файлик по адресу home/.config/Thunar/uca.xml
 # uca.xml :
 #<?xml encoding="UTF-8" version="1.0"?>
