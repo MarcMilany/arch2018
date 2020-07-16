@@ -40,9 +40,9 @@ Cостоит из 3 частей.
    ```bash 
    curl -L git.io/arch1.sh> arch1.sh 
    И запустить скрипт: 
-   sh archmy1
+   sh arch1.sh
    Или эта команда:
-   curl -L git.io/arch1.sh> archmy1 && sh arch1.sh
+   curl -L git.io/arch1.sh> arch1.sh && sh arch1.sh
    или
    curl -OL git.io/arch1.sh && sh arch1.sh
    ```
