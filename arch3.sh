@@ -1,5 +1,13 @@
 #!/bin/bash
 # ============================================================================
+# Автоматическое обнаружение ошибок
+# Эта команда остановит выполнение сценария после сбоя команды и будет отправлен код ошибки
+set -e
+# Если этот параметр '-e' задан, оболочка завершает работу, когда простая команда в списке команд завершается ненулевой (FALSE). Это не делается в ситуациях, когда код выхода уже проверен (if, while, until,||, &&)
+# Встроенная команда set:
+# https://www.sites.google.com/site/bashhackers/commands/set
+# ============================================================================
+# ============================================================================
 ### old_vars.log
 #set > old_vars.log
 
@@ -67,11 +75,23 @@ BLUE="\e[1;34m"; CYAN="\e[1;36m"; BOLD="\e[1;37m"; MAGENTA="\e[1;35m"; NC="\e[0m
 # DGRAY='\e[1;30m'  LGREEN='\e[1;32m' LBLUE='\e[1;34m'  LCYAN='\e[1;36m'    NC='\e[0m' # No Color
 # Индивидуальные настройки подсветки синтаксиса для каждого пользователя можно настраивать в конфигурационном файле /home/$USER/.bashrc
 
+#----------------------------------------------------------------------------
 
 # Checking personal setting (Проверяйте ваши персональные настройки)
 ### Display user entries (Отображение пользовательских записей ) 
 USER_ENTRIES=(USER_LANG TIMEZONE HOST_NAME USER_NAME LINUX_FW KERNEL \
 DESKTOP DISPLAY_MAN GREETER AUR_HELPER POWER GPU_DRIVER HARD_VIDEO)
+
+### Automatic error detection (Автоматическое обнаружение ошибок)
+_set() {
+    set [--abefhkmnptuvxBCHP] [-o option] [arg ...]
+}
+
+_set() {
+    set -e "\n${RED}Error: ${YELLOW}${*}${NC}"
+    _note "${MSG_ERROR}"
+    sleep 1; $$
+}
 
 ### Display some notes (Дисплей некоторые заметки)
 _note() {
@@ -144,7 +164,11 @@ _error() {
 }
 
 ### Cleanup on keyboard interrupt (Очистка при прерывании работы клавиатуры)
-#trap '_error ${MSG_KEYBOARD}' 1 2 3 6
+trap '_error ${MSG_KEYBOARD}' 1 2 3 6
+#trap "set -$-" RETURN; set +o nounset
+# Или
+#trap "set -${-//[is]}" RETURN; set +o nounset
+#..., устраняя недействительные флаги и действительно решая эту проблему!
 
 ### Delete sources and umount partitions (Удаление источников и размонтирование разделов)
 _cleanup() {
@@ -187,10 +211,198 @@ ${AUTHOR} ${RED}under ${LICENSE} ${GREEN}>>>${NC}"""
 _warning_banner
 
 sleep 4
+#echo -e "${MAGENTA}==> ${BOLD}Если у Вас беспроводное соединение, запустите nmtui и подключитесь к сети. ${NC}"
+#echo 'Если у Вас беспроводное соединение, запустите nmtui и подключитесь к сети.'
+# If you have a wireless connection, launch nmtui and connect to the network.
+
+echo -e "${GREEN}
+  <<< Начинается установка утилит (пакетов) для системы Arch Linux >>>
+${NC}"
+# Installation of utilities (packages) for the Arch Linux system begins
+
+echo -e "${BLUE}:: ${NC}Установка и настройка начата в $(date +%T)" 
+#echo "Установка и настройка начата в $(date +%T)"
+# Installation and configuration started in $(date +%T)
+
 echo -e "${GREEN}=> ${NC}Для проверки интернета можно пропинговать какой-либо сервис"
 #echo 'Для проверки интернета можно пропинговать какой-либо сервис'
 # To check the Internet, you can ping a service
 ping -c2 archlinux.org
+
+# ============================================================================
+
+#Замена исходного mirrorlist (зеркал для загрузки) на мой список серверов-зеркал
+
+#echo '3.1 Замена исходного mirrorlist (зеркал для загрузки)'
+#Ставим зеркало от Яндекс
+# Удалим старый файл /etc/pacman.d/mirrorlist
+#rm -rf /etc/pacman.d/mirrorlist
+# Загрузка нового файла mirrorlis (список серверов-зеркал)
+#wget https://raw.githubusercontent.com/MarcMilany/arch_2020/master/Mirrorlist/mirrorlist
+# Переместим нового файла mirrorlist в /etc/pacman.d/mirrorlist
+#mv -f ~/mirrorlist /etc/pacman.d/mirrorlist
+#echo "Обновление баз данных пакетов..."
+#sudo pacman -Sy
+
+# ============================================================================
+
+echo -e "${BLUE}:: ${NC}Создание резервной копии файла /etc/pacman.d/mirrorlist"
+#echo 'Создадим резервную копию файла /etc/pacman.d/mirrorlist'
+# Creating a backup copy of the file /etc/pacman.d/mirrorlist
+#sudo cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+#sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+sudo cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old 
+# Сохраняем старый список зеркал в качестве резервной копии:
+#sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
+# Переименовываем новый список:
+#mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist
+#mv -f ~/mirrorlist /etc/pacman.d/mirrorlist
+
+# ============================================================================
+
+#echo -e "${BLUE}:: ${NC}Посмотреть список серверов-зеркал для загрузки в mirrorlist"
+#echo 'Посмотреть список серверов-зеркал для загрузки в mirrorlist'
+# View the list of mirror servers to upload to mirrorlist
+#cat /etc/pacman.d/mirrorlist
+
+# Pacman Mirrorlist Generator
+# https://www.archlinux.org/mirrorlist/
+# Эта страница генерирует самый последний список зеркал, возможный для Arch Linux. Используемые здесь данные поступают непосредственно из внутренней базы данных зеркал разработчиков, используемой для отслеживания доступности и уровня зеркалирования. 
+# Есть два основных варианта: получить список зеркал с каждым доступным зеркалом или получить список зеркал, адаптированный к вашей географии.
+
+# ============================================================================
+echo -e "${BLUE}:: ${NC}Загрузка свежего списка зеркал со страницы Mirror Status, и обновляем mirrorlist"
+#echo 'Загрузка свежего списка зеркал со страницы Mirror Status, и обновляем mirrorlist'
+# Loading a fresh list of mirrors from the Mirror Status page, and updating the mirrorlist
+# Чтобы увидеть список всех доступных опций, наберите:
+#reflector --help
+# Команда отфильтрует пять зеркал, отсортирует их по скорости и обновит файл mirrorlist:
+sudo pacman -Sy --noconfirm --noprogressbar --quiet reflector
+sudo reflector --verbose --country 'Russia' -l 5 -p https -p http -n 5 --save /etc/pacman.d/mirrorlist.pacnew --sort rate  
+#reflector --verbose --country 'Russia' -l 5 -p https -p http -n 5 --sort rate --save /etc/pacman.d/mirrorlist
+# Собственные уведомления (notify):
+notify-send "mirrorlist обновлен" -i gtk-info
+
+#echo 'Выбор серверов-зеркал для загрузки.'
+#echo 'The choice of mirrors to download.'
+#pacman -Sy --noconfirm --noprogressbar --quiet reflector
+#reflector -c "Russia" -c "Belarus" -c "Ukraine" -c "Poland" -f 5 -l 5 -p https -p http -n 5 --save /etc/pacman.d/mirrorlist --sort rate
+#reflector --verbose --country Kazakhstan --country Russia --sort rate --save /etc/pacman.d/mirrorlist
+
+#Команда отфильтрует 12 зеркал russia, отсортирует по скорости и обновит файл mirrorlist
+#sudo reflector -c "Russia" -f 12 -l 12 --verbose --save /etc/pacman.d/mirrorlist
+
+#------------------------------------------------------------------------------
+
+# Reflector — скрипт, который автоматизирует процесс настройки зеркал, включающий в себя загрузку свежего списка зеркал со страницы Mirror Status.
+# https://www.linuxsecrets.com/archlinux-wiki/wiki.archlinux.org/index.php/Reflector_(%D0%A0%D1%2583%D1%2581%D1%2581%D0%BA%D0%B8%D0%B9).html
+# Эта страница сообщает о состоянии всех известных, общедоступных и активных зеркал Arch Linux:
+# https://www.archlinux.org/mirrors/status/
+
+# ============================================================================
+
+# Если возникли проблемы с обновлением, или установкой пакетов 
+# Выполните данные рекомендации:
+# author:
+#echo 'Обновление ключей системы'
+# Updating of keys of a system
+#{
+#echo "Создаётся генерация мастер-ключа (брелка) pacman, введите пароль (не отображается)..."
+#sudo pacman-key --init
+#echo "Далее идёт поиск ключей..."
+#sudo pacman-key --populate archlinux
+#echo "Обновление ключей..."
+#sudo pacman-key --refresh-keys
+#echo "Обновление баз данных пакетов..."
+#sudo pacman -Sy
+#}
+#sleep 1
+#
+# Или:
+#sudo pacman-key --init && sudo pacman-key --populate archlinux && sudo pacman-key --refresh-keys && sudo pacman -Sy
+
+# ============================================================================
+
+echo -e "${BLUE}:: ${NC}Удалим старый файл /etc/pacman.d/mirrorlist"
+#echo 'Удалим старый файл /etc/pacman.d/mirrorlist'
+# Delete the old file /etc/pacman.d/mirrorlist
+#rm -rf /etc/pacman.d/mirrorlist
+sudo rm -rf /etc/pacman.d/mirrorlist
+# Удаления старой резервной копии (если она есть, если нет, то пропустите этот шаг):
+#rm /etc/pacman.d/mirrorlist.old
+# Удалим mirrorlist из /mnt/etc/pacman.d/mirrorlist
+#rm /mnt/etc/pacman.d/mirrorlist 
+
+#echo -e "${BLUE}:: ${NC}Удалите файл /etc/pacman.d/mirrorlist"
+#echo 'Удалите файл /etc/pacman.d/mirrorlist'
+# Delete files /etc/pacman.d/mirrorlist
+#rm -rf /etc/pacman.d/mirrorlist
+
+# ============================================================================
+
+echo -e "${BLUE}:: ${NC}Переименуем новый список серверов-зеркал mirrorlist.pacnew в mirrorlist"
+#echo 'Переименуем новый список серверов-зеркал mirrorlist.pacnew в mirrorlist'
+# Rename the new list of mirror servers mirrorlist. pacnew to mirrorlist
+#mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist
+# Переименовываем новый список:
+#sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist
+sudo mv /etc/pacman.d/mirrorlist.backup /etc/pacman.d/mirrorlist
+
+# ============================================================================
+
+echo -e "${BLUE}:: ${NC}Создание резервной копии файла /etc/pacman.d/mirrorlist"
+#echo 'Создадим резервную копию файла /etc/pacman.d/mirrorlist'
+# Creating a backup copy of the file /etc/pacman.d/mirrorlist
+#sudo cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+#sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+sudo cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+# Сохраняем старый список зеркал в качестве резервной копии:
+#sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
+# Переименовываем новый список:
+#mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist
+#mv -f ~/mirrorlist /etc/pacman.d/mirrorlist
+
+# ============================================================================
+
+echo -e "${BLUE}:: ${NC}Посмотреть список серверов-зеркал для загрузки в mirrorlist"
+#echo 'Посмотреть список серверов-зеркал для загрузки в mirrorlist'
+# View the list of mirror servers to upload to mirrorlist
+cat /etc/pacman.d/mirrorlist
+
+# ============================================================================
+
+#echo -e "${BLUE}:: ${NC}Обновим базы данных пакетов" 
+#echo 'Обновим базы данных пакетов'
+# Updating the package databases
+#sudo pacman-key --init
+#sudo pacman-key --refresh-keys
+#sudo pacman -Sy  
+
+#----------------------------------------------------------------------------
+# Знакомьтесь, pacman - лучший пакетный менеджер в мире линукса!
+#pacman -Syy   - обновление баз пакмэна(как apt-get update в дэбианоподбных)
+#pacman -Syyu  - обновление баз плюс обновление пакетов
+#----------------------------------------------------------------------------
+# Если возникли проблемы с обновлением, или установкой пакетов 
+# Выполните данные рекомендации:
+# author:
+#echo 'Обновление ключей системы'
+# Updating of keys of a system
+#{
+#echo "Создаётся генерация мастер-ключа (брелка) pacman, введите пароль (не отображается)..."
+#sudo pacman-key --init
+#echo "Далее идёт поиск ключей..."
+#sudo pacman-key --populate archlinux
+#echo "Обновление ключей..."
+#sudo pacman-key --refresh-keys
+#echo "Обновление баз данных пакетов..."
+#sudo pacman -Sy
+#}
+#sleep 1
+#
+# Или:
+#sudo pacman-key --init && sudo pacman-key --populate archlinux && sudo pacman-key --refresh-keys && sudo pacman -Sy
+# ============================================================================
 
 echo -e "${YELLOW}==> ${NC}Создадим папку (downloads), и переходим в созданную папку"
 #echo 'Создадим папку (downloads), и переходим в созданную папку'
@@ -211,6 +423,17 @@ wget git.io/yay-install.sh && sh yay-install.sh --noconfirm
 #makepkg -si --skipinteg
 #cd ..
 #rm -rf yay-bin
+
+#--------------------------------------------------------------------
+# AUR (Arch User Repository) - репозиторий, в который пользователи загружают скрипты для установки программного обеспечения. Там есть практически всё, что можно установить на Linux. В том числе и программы, которые для других дистробутивов пришлось бы собирать из исходников.
+# AUR'ом можно пользоваться и просто с помощью Git. Но куда удобнее использовать помощник AUR. Они бывают графические и консольные.
+# Загвоздка в том, что все помощники доступны только в самом AUR 😅 Поэтому будем устанавливать через Git, так как по-сути, AUR состоит из git-репозиториев
+# git clone https://aur.archlinux.org/yay-bin.git
+# Если хотите, чтобы yay собирался из исходников, вместо yay-bin.git впишите yay.git.
+# https://aur.archlinux.org/packages/yay-bin/
+# https://aur.archlinux.org/packages/
+# https://github.com/Jguer/yay
+# ============================================================================
 
 echo -e "${BLUE}:: ${NC}Обновим всю систему включая AUR пакеты" 
 #echo 'Обновим всю систему включая AUR пакеты'
@@ -243,7 +466,7 @@ sudo pacman -S cups ghostscript cups-pdf --noconfirm
 echo -e "${BLUE}:: ${NC}Установка базовых программ и пакетов" 
 #echo 'Установка базовых программ и пакетов'
 # Installing basic programs and packages
-sudo pacman -S aspell-ru arch-install-scripts bash-completion dosfstools f2fs-tools sane gvfs gnu-netcat htop iftop iotop nmap ntfs-3g ntp ncdu hydra isomd5sum python-isomd5sum translate-shell mc pv reflector sox youtube-dl speedtest-cli python-pip pwgen scrot git curl xsel --noconfirm 
+sudo pacman -S aspell-ru arch-install-scripts bash-completion dosfstools f2fs-tools sane gvfs gnu-netcat htop iftop iotop nmap ntfs-3g ntp ncdu networkmanager-openvpn hydra isomd5sum python-isomd5sum translate-shell mc pv reflector sox youtube-dl speedtest-cli python-pip pwgen scrot git curl xsel --noconfirm 
 
 echo -e "${BLUE}:: ${NC}Установка терминальных утилит для вывода информации о системе" 
 #echo 'Установка терминальных утилит для вывода информации о системе'
@@ -423,8 +646,34 @@ sudo ufw status
 echo -e "${BLUE}:: ${NC}Создать резервную копию (дубликат) файла grub.cfg" 
 #echo 'Создать резервную копию (дубликат) файла grub.cfg'
 # Create a backup (duplicate) of the grub.cfg file
-sudo cp /boot/grub/grub.cfg grub.cfg.backup
+#sudo cp /boot/grub/grub.cfg grub.cfg.backup
+sudo cp -vf /boot/grub/grub.cfg /boot/grub/grub.cfg.backup 
 
+###         "Дополнительные Настройки"
+# ============================================================================
+# Часы:
+#Europe/Moscow
+#%a, %d %b, %H:%M
+# ----------------------------------------------------------------------------
+# Conky Start Stop:
+#Conky Start Stop
+#Включить и выключить Conky
+#bash -c 'if [[ `pidof conky` ]]; then killall conky; else bash ~/.scripts/conky-startup.sh; fi'
+#Эмблемы: emblem-generic
+# ----------------------------------------------------------------------------
+# Клавиатура:
+#xfce4-terminal   Ctrl+Alt+T
+#xfce4-terminal --drop-down  F12
+#light-locker-command -l   Ctrl+Alt+L
+#xkill   Ctrl+Alt+X
+#xfce4-taskmanager  Ctrl+Alt+M 
+#xflock4   Ctrl+Alt+Delete
+# ---------------------------------------------------------------------------
+# Redshift:
+#Redshift
+#Инструмент регулирования цветовой температуры
+#sh -c "sleep 30 && redshift-gtk -l 54.5293:36.27542 -t 6400:4500 -b 1.0:0.8"
+#on login
 # ============================================================================
 # echo 'Добавить оскорбительное выражение после неверного ввода пароля в терминале'
 # Откройте на редактирование файл sudoers следующей командой в терминале:
@@ -433,7 +682,17 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 #   # Defaults env_keep += "QTDIR KDEDIR"
 # и ниже скопипастите следующую стоку:
 #     Defaults  badpass_message="Ты не администратор, придурок."
+#
+# Настраиваем sudo:
+# Редактируем файл sudoers с помощью команды visudo. По умолчанию будет попытка открыть vi, но у нас он даже не установлен. Поэтому укажем, что редактор у нас nano:
+#EDITOR=nano visudo
+# Находим строчку:
+# %wheel ALL=(ALL) ALL
+# И убираем % в начале строки. Сохраняем и выходим.
 # ============================================================================
+# Добавить (прописать) в /etc/fstab , в самый низ файла:
+# с отступом от последней записи (запись оставить закомментированной)
+#  #/swapfile1 swap swap defaults 0 0
 # ============================================================================
 # Пропишем тему для Color в pacman.conf" 
 # Write the theme for Color in pacman.conf
@@ -445,6 +704,12 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 # Выберите цвет панели /bn/ - #4072BF
 # Регулируйте прозрачность не панели, а
 # внешний вид → стиль → выбрать сплошной цвет → в выборе цвета задайте прозрачность (ползунок снизу)
+# ============================================================================
+# После этого нужно подредактировать хуки keymap.
+# Откройте файл /etc/mkinitcpio.conf:  
+#nano /etc/mkinitcpio.conf
+# Ищём строчку HOOKS и добавляем в конце 3 хука (внутри скобок):
+#HOOKS = (... consolefont keymap systemd)
 # ============================================================================
 #Основное
 #Имя:  Thunar Root
@@ -532,7 +797,34 @@ sudo cp /boot/grub/grub.cfg grub.cfg.backup
 #sudo start-pulseaudio-x11
 # Выполнить эту команду только после установки утилит 'Поддержка звука' и перезагрузки системы, если сервис 'Запуск системы PulseAudio (Запуск звуковой системы PulseAudio)'не включился, и не появился в автозапуске. Это можно посмотреть через, диспетчер настроек, в пункте меню 'Сеансы и автозапуск'.
 
-echo -e "${GREEN}==> ${NC}Установка завершена!"
+# ----------------------------------------------------------------------------
+
+# Проверка вводимых символов
+#cat /etc/arch-release
+#grep -V
+#echo 'aAsSdDfFgGhH'|egrep -q '^[a-z_-]+$'; echo $?
+
+# ============================================================================
+
+# Исправьте миниатюры в файловом менеджере
+# Fix Thumbnails in file manager
+#sudo pacman -S tumbler ffmpegthumbnailer poppler-glib libgsf libopenraw
+# Удаление папки .thumbnails
+#(Папка предназначена для хранения миниатюрных эскизов всех ранее просмотренных вами изображений)
+#sudo rm -rf ~/.thumbnails/
+# Переименовываем новый список:
+#sudo mv ~/.config/Thunar ~/.config/Thunar.bak
+# Обновим каталоги MIME, и update-mime-database 
+#sudo update-mime-database /usr/share/mime
+
+#Then logout and back in or Reboot. 
+
+# ============================================================================
+
+echo -e "${GREEN}
+  <<< Поздравляем! Установка завершена. >>> ${NC}"
+# Congratulations! Installation is complete.
+#echo -e "${GREEN}==> ${NC}Установка завершена!"
 #echo 'Установка завершена!'
 # The installation is now complete!
 
@@ -547,9 +839,25 @@ echo -e "${BLUE}==> ${NC}Скачать и произвести запуск с�
 echo -e "${YELLOW}==>  wget git.io/archmy4 ${NC}"
 # Команды по установке :
 # wget git.io/archmy4 
+# sh archmy4
 # wget git.io/archmy4 && sh archmy4 --noconfirm
-echo '♥ Либо ты идешь вперед... либо в зад.' 
+echo -e "${GREEN}
+  <<< ♥ Либо ты идешь вперед... либо в зад. >>> ${NC}"
+#echo '♥ Либо ты идешь вперед... либо в зад.' 
+# ♥ Either you go forward... or you go up your ass.
 # ============================================================================
+
+#echo -e "${YELLOW}==> ${NC}Загрузим архив (ветку мастер MarcMilany/arch_2020)"
+#echo 'Загрузим архив (ветку мастер MarcMilany/arch_2020)'
+# Upload the archive (branch master MarcMilany/arch_2020)
+#wget https://github.com/MarcMilany/arch_2020.git/archive/master.zip
+#wget github.com/MarcMilany/arch_2020.git/archive/arch_2020-master.zip
+#sudo mv -f ~/Downloads/master.zip
+#sudo mv -f ~/Downloads/arch_2020-master.zip
+#sudo tar -xzf master.zip -C ~/ 
+#sudo tar -xzf arch_2020-master.zip -C ~/
+#git clone https://github.com/MarcMilany/arch_2020.git
+
 echo -e "${BLUE}:: ${NC}Посмотрим дату и время без характеристик для проверки времени"
 #echo 'Посмотрим дату и время без характеристик для проверки времени'
 # Let's look at the date and time without characteristics to check the time
@@ -560,3 +868,19 @@ echo 'Удаление созданной папки (downloads), и скрип�
 # Deleting the created folder (downloads) and the program installation script (archmy3)
 sudo rm -R ~/downloads/
 sudo rm -rf ~/archmy3
+
+echo -e "${BLUE}==> ${NC}Выйти из настроек, или перезапустить систему?"
+#echo "Выйти из настроек, или перезапустить систему?"
+# Exit settings, or restart the system?
+echo -e "${GREEN}==> ${NC}y+Enter - выйти, просто Enter - перезапуск"
+#echo "y+Enter - выйти, просто Enter - перезапуск"
+# y+Enter-exit, just Enter-restart
+read doing 
+case $doing in
+y)
+  exit
+ ;;
+*)
+sudo reboot -f
+esac #окончание оператора case.
+#
